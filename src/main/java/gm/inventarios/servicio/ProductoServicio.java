@@ -15,7 +15,7 @@ public class ProductoServicio implements IProductoServicio{
 
     @Override
     public List<Producto> listarProductos() {
-        this.productoRepositorio.findAll(); //Regresa todos los objetos de tipo producto de la bd
+        return this.productoRepositorio.findAll(); //Regresa todos los objetos de tipo producto de la bd
     }
 
     @Override
