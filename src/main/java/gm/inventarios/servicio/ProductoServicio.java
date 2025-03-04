@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProductoServicio implements IProductoServicio{
@@ -19,19 +21,17 @@ public class ProductoServicio implements IProductoServicio{
     }
 
     @Override
-    public Producto buscarProductoPorId(Integer idProducto) {
-        Producto producto =
-                this.productoRepositorio.findById(idProducto).orElse(null);
-        return producto;
+    public Optional<Producto> buscarProductoPorId(UUID idProducto) {
+        return this.productoRepositorio.findById(idProducto);
     }
 
     @Override
-    public void guardarProducto(Producto producto) { //El metodo save funciona si el idProducto = null hace un insert
-        this.productoRepositorio.save(producto);  //si es diferente de null se hace un update
+    public Producto guardarProducto(Producto producto) { //El metodo save funciona si el idProducto = null hace un insert
+         return this.productoRepositorio.save(producto);  //si es diferente de null se hace un update
     }
 
     @Override
-    public void eliminarProductoPorId(Integer idProducto) {
+    public void eliminarProductoPorId(UUID idProducto) {
         this.productoRepositorio.deleteById(idProducto);
     }
 }
