@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/producto")
-//@CrossOrigin(value = "http://localhost:4200")
+@CrossOrigin(value = "http://localhost:4200")
 public class ProductoControlador {
     //Atributo //Clase Logger Factory //metodo get logger
     private static final Logger logger = LoggerFactory.getLogger(ProductoControlador.class); //Cuando enviemos info a la consola se
@@ -36,9 +36,39 @@ public class ProductoControlador {
     }
 
     @PostMapping("/insert")
-    public Producto agregarProducto(@RequestBody Producto producto){
+    public ResponseEntity<Producto> agregarProducto(@RequestBody Producto producto) {
         logger.info("Producto a agregar: " + producto);
-        return this.productoServicio.guardarProducto(producto);
+
+        try {
+            // Validar que el producto no sea nulo
+            if (producto == null) {
+                logger.error("El producto no puede ser nulo");
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Validar campos obligatorios
+            if (producto.getDescripcion() == null || producto.getDescripcion().isEmpty()) {
+                logger.error("La descripción del producto no puede estar vacía");
+                return ResponseEntity.badRequest().build();
+            }
+            if (producto.getPrecio() == null || producto.getPrecio() <= 0) {
+                logger.error("El precio del producto debe ser mayor que 0");
+                return ResponseEntity.badRequest().build();
+            }
+            if (producto.getExistencia() == null || producto.getExistencia() < 0) {
+                logger.error("La existencia del producto no puede ser negativa");
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Guardar el producto en la base de datos
+            Producto nuevoProducto = this.productoServicio.guardarProducto(producto);
+
+            // Devolver el producto creado con el código de estado 201 (CREATED)
+            return ResponseEntity.status(201).body(nuevoProducto);
+        } catch (Exception e) {
+            logger.error("Error al guardar el producto: " + e.getMessage());
+            return ResponseEntity.status(500).build();  // Error interno del servidor
+        }
     }
 
     @GetMapping("/getById/{id}")
