@@ -1,5 +1,6 @@
 package gm.inventarios.controlador;
 
+import gm.inventarios.excepcion.RecursoNoEncontradoExcepcion;
 import gm.inventarios.modelo.Producto;
 import gm.inventarios.servicio.ProductoServicio;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -72,10 +74,17 @@ public class ProductoControlador {
     }
 
     @GetMapping("/getById/{id}")
-    public ResponseEntity<Producto> obtenerPorId(@PathVariable UUID id){ //metodo ese id no e usa //ya
-        logger.info("Productos obtenidos");
-        return this.productoServicio.buscarProductoPorId(id)
-                .map(producto -> ResponseEntity.ok().body(producto))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Producto> obtenerProductoPorId(@PathVariable UUID id) {
+        // Buscar el producto por ID
+        Optional<Producto> productoOptional = this.productoServicio.buscarProductoPorId(id);
+
+        // Verificar si el producto existe
+        if (productoOptional.isPresent()) {
+            Producto producto = productoOptional.get(); // Obtener el producto del Optional
+            return ResponseEntity.ok(producto); // Devuelve 200 OK con el producto
+        } else {
+            // Lanza una excepción personalizada si el producto no se encuentra
+            throw new RecursoNoEncontradoExcepcion("No se encontró el id: " + id);
+        }
     }
 }
